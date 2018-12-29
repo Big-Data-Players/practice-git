@@ -1,4 +1,4 @@
--------------------------------------------------------------------------------------------------
+﻿-------------------------------------------------------------------------------------------------
 --------------------------------------------HIVE-------------------------------------------------
 -------------------------------------------------------------------------------------------------
 
@@ -12,30 +12,18 @@ USE GENDER_STAT_DB;
 DROP TABLE IF EXISTS Q1_DATA;
 
 CREATE TABLE IF NOT EXISTS Q1_DATA(CountryName varchar(50), IndicatorCode varchar(50),
-`2010` double,`2011` double,`2012` double,`2013` double,`2014` double,
-`2015` double,`2016` double)
+YearsByCountry int, Data double)
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '|';
 
 LOAD DATA INPATH 'sqoop-question-1/part-m-00000' INTO TABLE Q1_DATA;
 
-CREATE TABLE OUTPUT1_Q1 AS 
-SELECT CountryName, IndicatorCode, (SUM(
-+COALESCE(`2010`,CAST(0 AS BIGINT))
-+COALESCE(`2011`,CAST(0 AS BIGINT))
-+COALESCE(`2012`,CAST(0 AS BIGINT))
-+COALESCE(`2013`,CAST(0 AS BIGINT))
-+COALESCE(`2014`,CAST(0 AS BIGINT))
-+COALESCE(`2015`,CAST(0 AS BIGINT))
-+COALESCE(`2016`,CAST(0 AS BIGINT)))/7) AS SumYears
-FROM Q1_DATA
-GROUP BY CountryName, IndicatorCode;
-
-
 CREATE TABLE FINAL_OUTPUT_Q1 AS 
-SELECT CountryName, SumYears
-FROM OUTPUT1_Q1
-WHERE SumYears <> 0 AND SumYears <30;
+SELECT CountryName, (AVG(Data)) AS Average
+FROM q1_data
+GROUP BY CountryName
+HAVING Average < 30;
+
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>QUESTION 4<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -147,8 +135,8 @@ IndicatorName varchar(500),IndicatorCode varchar(30),`1960` varchar(100),
 QUESTION #1
 
 CREATE VIEW question_1_hive AS
-SELECT CountryName, IndicatorCode, `2010`, `2011`, `2012`, `2013`, `2014`, `2015`, `2016`
-FROM gender_data
+SELECT CountryName, IndicatorCode, YearsByCountry, Data
+FROM HIVE_Q1
 WHERE IndicatorCode = 'SE.TER.CMPL.FE.ZS';
 
 QUESTION #4
@@ -158,10 +146,6 @@ SELECT CountryName, IndicatorCode, `2000`, `2001`, `2002`, `2003`, `2004`, `2005
 `2008`, `2009`, `2010`, `2011`, `2012`, `2013`, `2014`, `2015`, `2016`
 FROM gender_data
 WHERE IndicatorCode = 'SL.EMP.SELF.FE.ZS';
-
-
-
-
 
 
 
